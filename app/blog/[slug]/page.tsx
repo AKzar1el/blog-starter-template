@@ -145,6 +145,12 @@ export default async function PostPage({ params }: PostPageProps) {
             <svg className="mx-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
+            <Link href={`/blog?category=${encodeURIComponent(post.category)}`} className="hover:text-accent-600 capitalize">
+              {post.category}
+            </Link>
+            <svg className="mx-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
             <span className="text-gray-900 dark:text-gray-100 truncate max-w-xs">{post.title}</span>
           </nav>
 
