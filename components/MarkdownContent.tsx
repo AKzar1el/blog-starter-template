@@ -26,9 +26,9 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
   return (
     <div className="prose prose-lg prose-gray max-w-none
       prose-headings:scroll-mt-20
-      prose-h1:text-4xl prose-h1:font-bold prose-h1:mb-4
-      prose-h2:text-3xl prose-h2:font-semibold prose-h2:mt-12 prose-h2:mb-4 prose-h2:border-b prose-h2:pb-2 dark:prose-h2:border-gray-700
-      prose-h3:text-2xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-3
+      prose-h1:text-4xl prose-h1:font-bold prose-h1:mb-4 prose-h1:text-gray-900 dark:prose-h1:text-gray-100
+      prose-h2:text-3xl prose-h2:font-semibold prose-h2:mt-12 prose-h2:mb-4 prose-h2:border-b prose-h2:pb-2 prose-h2:text-gray-900 dark:prose-h2:text-gray-100 dark:prose-h2:border-gray-700
+      prose-h3:text-2xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-gray-900 dark:prose-h3:text-gray-100
       prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed
       prose-a:text-accent-600 prose-a:no-underline hover:prose-a:underline
       prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold
