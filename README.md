@@ -79,6 +79,7 @@ Perfect for **developers**, **startups**, **indie hackers**, **content creators*
 - **Social Sharing** - Built-in Twitter, LinkedIn, and link sharing
 - **Tag System** - Organize and filter posts by tags
 - **Category Navigation** - Filter posts by category with one click
+- **Comment System** - Threaded comments with nested replies, likes, and real-time engagement
 
 ### 🎨 UI/UX
 - **Smooth Animations** - Fade-in and slide effects for professional feel
@@ -589,11 +590,11 @@ For detailed setup instructions, see the [Quick Start](#-quick-start) guide abov
 - [x] View counter and analytics
 - [x] Dark mode support
 - [x] Related posts recommendations
+- [x] Threaded comment system with likes and nested replies
 
 ### Planned Features 🚧
 - [ ] Search functionality
 - [ ] Newsletter integration (Mailchimp, ConvertKit)
-- [ ] Comment system (Disqus, Giscus)
 - [ ] Multi-author support with profiles
 - [ ] RSS feed
 - [ ] Admin dashboard

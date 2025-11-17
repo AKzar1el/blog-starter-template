@@ -28,6 +28,10 @@ const ShareButtons = dynamicImport(() => import('@/components/ShareButtons'), {
   ssr: false, // Client-side only component
 });
 
+const Comments = dynamicImport(() => import('@/components/Comments'), {
+  ssr: false, // Client-side only component
+});
+
 interface PostPageProps {
   params: { slug: string };
 }
@@ -259,6 +263,9 @@ export default async function PostPage({ params }: PostPageProps) {
                   </div>
                 </section>
               )}
+
+              {/* Comments Section */}
+              <Comments postSlug={params.slug} />
             </div>
 
             {/* Sidebar - Table of Contents */}

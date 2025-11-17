@@ -32,6 +32,26 @@ async function initializeDatabase() {
   await client.execute('CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug)');
   await client.execute('CREATE INDEX IF NOT EXISTS idx_posts_publishedAt ON posts(publishedAt DESC)');
   await client.execute('CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category)');
+
+  // Create comments table
+  await client.execute(`
+    CREATE TABLE IF NOT EXISTS comments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      postSlug TEXT NOT NULL,
+      username TEXT NOT NULL,
+      content TEXT NOT NULL,
+      parentId INTEGER,
+      likes INTEGER DEFAULT 0,
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY (postSlug) REFERENCES posts(slug) ON DELETE CASCADE,
+      FOREIGN KEY (parentId) REFERENCES comments(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Create indexes for comments
+  await client.execute('CREATE INDEX IF NOT EXISTS idx_comments_postSlug ON comments(postSlug)');
+  await client.execute('CREATE INDEX IF NOT EXISTS idx_comments_parentId ON comments(parentId)');
+  await client.execute('CREATE INDEX IF NOT EXISTS idx_comments_createdAt ON comments(createdAt DESC)');
 }
 
 // Initialize on module load (only in development)
