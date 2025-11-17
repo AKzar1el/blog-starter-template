@@ -1,4 +1,4 @@
-import db from './index';
+import { client } from './index';
 
 export interface EmbeddedMedia {
   url: string;
@@ -35,106 +35,130 @@ export interface CreatePostData {
   embeddedMedia?: EmbeddedMedia[];
 }
 
-export function createPost(data: CreatePostData): Post {
+export async function createPost(data: CreatePostData): Promise<Post> {
   const now = new Date().toISOString();
   const tags = JSON.stringify(data.tags);
   const category = data.category || 'All Blog Posts';
   const embeddedMedia = data.embeddedMedia ? JSON.stringify(data.embeddedMedia) : null;
 
-  const stmt = db.prepare(`
-    INSERT INTO posts (slug, title, content, excerpt, author, tags, coverImage, category, embeddedMedia, publishedAt, updatedAt, views)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
-  `);
+  const result = await client.execute({
+    sql: `
+      INSERT INTO posts (slug, title, content, excerpt, author, tags, coverImage, category, embeddedMedia, publishedAt, updatedAt, views)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+    `,
+    args: [
+      data.slug,
+      data.title,
+      data.content,
+      data.excerpt,
+      data.author,
+      tags,
+      data.coverImage || null,
+      category,
+      embeddedMedia,
+      now,
+      now
+    ]
+  });
 
-  const info = stmt.run(
-    data.slug,
-    data.title,
-    data.content,
-    data.excerpt,
-    data.author,
-    tags,
-    data.coverImage || null,
-    category,
-    embeddedMedia,
-    now,
-    now
-  );
-
-  return getPostById(info.lastInsertRowid as number)!;
+  const post = await getPostById(Number(result.lastInsertRowid));
+  if (!post) {
+    throw new Error('Failed to create post');
+  }
+  return post;
 }
 
-export function getPostById(id: number): Post | undefined {
-  const stmt = db.prepare('SELECT * FROM posts WHERE id = ?');
-  return stmt.get(id) as Post | undefined;
+export async function getPostById(id: number): Promise<Post | undefined> {
+  const result = await client.execute({
+    sql: 'SELECT * FROM posts WHERE id = ?',
+    args: [id]
+  });
+  return result.rows[0] as unknown as Post | undefined;
 }
 
-export function getPostBySlug(slug: string): Post | undefined {
-  const stmt = db.prepare('SELECT * FROM posts WHERE slug = ?');
-  return stmt.get(slug) as Post | undefined;
+export async function getPostBySlug(slug: string): Promise<Post | undefined> {
+  const result = await client.execute({
+    sql: 'SELECT * FROM posts WHERE slug = ?',
+    args: [slug]
+  });
+  return result.rows[0] as unknown as Post | undefined;
 }
 
-export function getAllPosts(limit?: number, offset?: number): Post[] {
-  let query = 'SELECT * FROM posts ORDER BY publishedAt DESC';
+export async function getAllPosts(limit?: number, offset?: number): Promise<Post[]> {
+  let sql = 'SELECT * FROM posts ORDER BY publishedAt DESC';
+  const args: any[] = [];
 
   if (limit !== undefined) {
-    query += ` LIMIT ${limit}`;
+    sql += ' LIMIT ?';
+    args.push(limit);
     if (offset !== undefined) {
-      query += ` OFFSET ${offset}`;
+      sql += ' OFFSET ?';
+      args.push(offset);
     }
   }
 
-  const stmt = db.prepare(query);
-  return stmt.all() as Post[];
+  const result = await client.execute({ sql, args });
+  return result.rows as unknown as Post[];
 }
 
-export function getPostCount(): number {
-  const stmt = db.prepare('SELECT COUNT(*) as count FROM posts');
-  const result = stmt.get() as { count: number };
-  return result.count;
+export async function getPostCount(): Promise<number> {
+  const result = await client.execute('SELECT COUNT(*) as count FROM posts');
+  const row = result.rows[0] as unknown as { count: number };
+  return row.count;
 }
 
-export function incrementViews(slug: string): void {
-  const stmt = db.prepare('UPDATE posts SET views = views + 1 WHERE slug = ?');
-  stmt.run(slug);
+export async function incrementViews(slug: string): Promise<void> {
+  await client.execute({
+    sql: 'UPDATE posts SET views = views + 1 WHERE slug = ?',
+    args: [slug]
+  });
 }
 
-export function getPostsByTag(tag: string): Post[] {
-  const stmt = db.prepare(`
-    SELECT * FROM posts
-    WHERE tags LIKE ?
-    ORDER BY publishedAt DESC
-  `);
-  return stmt.all(`%"${tag}"%`) as Post[];
+export async function getPostsByTag(tag: string): Promise<Post[]> {
+  const result = await client.execute({
+    sql: `
+      SELECT * FROM posts
+      WHERE tags LIKE ?
+      ORDER BY publishedAt DESC
+    `,
+    args: [`%"${tag}"%`]
+  });
+  return result.rows as unknown as Post[];
 }
 
-export function getPostsByCategory(category: string, limit?: number, offset?: number): Post[] {
-  let query = 'SELECT * FROM posts WHERE category = ? ORDER BY publishedAt DESC';
+export async function getPostsByCategory(category: string, limit?: number, offset?: number): Promise<Post[]> {
+  let sql = 'SELECT * FROM posts WHERE category = ? ORDER BY publishedAt DESC';
+  const args: any[] = [category];
 
   if (limit !== undefined) {
-    query += ` LIMIT ${limit}`;
+    sql += ' LIMIT ?';
+    args.push(limit);
     if (offset !== undefined) {
-      query += ` OFFSET ${offset}`;
+      sql += ' OFFSET ?';
+      args.push(offset);
     }
   }
 
-  const stmt = db.prepare(query);
-  return stmt.all(category) as Post[];
+  const result = await client.execute({ sql, args });
+  return result.rows as unknown as Post[];
 }
 
-export function getPostCountByCategory(category: string): number {
-  const stmt = db.prepare('SELECT COUNT(*) as count FROM posts WHERE category = ?');
-  const result = stmt.get(category) as { count: number };
-  return result.count;
+export async function getPostCountByCategory(category: string): Promise<number> {
+  const result = await client.execute({
+    sql: 'SELECT COUNT(*) as count FROM posts WHERE category = ?',
+    args: [category]
+  });
+  const row = result.rows[0] as unknown as { count: number };
+  return row.count;
 }
 
-export function getAllCategories(): string[] {
-  const stmt = db.prepare('SELECT DISTINCT category FROM posts ORDER BY category');
-  const results = stmt.all() as { category: string }[];
-  return results.map(r => r.category);
+export async function getAllCategories(): Promise<string[]> {
+  const result = await client.execute('SELECT DISTINCT category FROM posts ORDER BY category');
+  return result.rows.map((r: any) => r.category);
 }
 
-export function updatePost(slug: string, data: Partial<CreatePostData>): Post | undefined {
-  const post = getPostBySlug(slug);
+export async function updatePost(slug: string, data: Partial<CreatePostData>): Promise<Post | undefined> {
+  const post = await getPostBySlug(slug);
   if (!post) return undefined;
 
   const updates: string[] = [];
@@ -178,12 +202,10 @@ export function updatePost(slug: string, data: Partial<CreatePostData>): Post | 
 
   values.push(slug);
 
-  const stmt = db.prepare(`
-    UPDATE posts
-    SET ${updates.join(', ')}
-    WHERE slug = ?
-  `);
+  await client.execute({
+    sql: `UPDATE posts SET ${updates.join(', ')} WHERE slug = ?`,
+    args: values
+  });
 
-  stmt.run(...values);
-  return getPostBySlug(slug);
+  return await getPostBySlug(slug);
 }

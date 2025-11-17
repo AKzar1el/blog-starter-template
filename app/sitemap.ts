@@ -1,9 +1,13 @@
 import { MetadataRoute } from 'next';
 import { getAllPosts } from '@/lib/db/posts';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
 
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,

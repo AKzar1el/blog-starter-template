@@ -1,49 +1,43 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { createClient } from '@libsql/client';
 
-const dbPath = path.join(process.cwd(), 'blog.db');
-const db = new Database(dbPath);
+// Create Turso client for serverless environments
+// Use dummy values during build if env vars are missing
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
-// Enable WAL mode for better concurrent access
-db.pragma('journal_mode = WAL');
+// Initialize database schema
+async function initializeDatabase() {
+  // Create posts table
+  await client.execute(`
+    CREATE TABLE IF NOT EXISTS posts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT UNIQUE NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      excerpt TEXT NOT NULL,
+      author TEXT NOT NULL,
+      tags TEXT NOT NULL,
+      coverImage TEXT,
+      category TEXT DEFAULT 'All Blog Posts',
+      publishedAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      views INTEGER DEFAULT 0,
+      embeddedMedia TEXT
+    )
+  `);
 
-// Create posts table
-const createPostsTable = db.prepare(`
-  CREATE TABLE IF NOT EXISTS posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    slug TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    excerpt TEXT NOT NULL,
-    author TEXT NOT NULL,
-    tags TEXT NOT NULL,
-    coverImage TEXT,
-    category TEXT DEFAULT 'All Blog Posts',
-    publishedAt TEXT NOT NULL,
-    updatedAt TEXT NOT NULL,
-    views INTEGER DEFAULT 0
-  )
-`);
-
-createPostsTable.run();
-
-// Add category column if it doesn't exist (migration)
-try {
-  db.prepare('ALTER TABLE posts ADD COLUMN category TEXT DEFAULT "All Blog Posts"').run();
-} catch (error) {
-  // Column already exists, ignore error
+  // Create indexes
+  await client.execute('CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug)');
+  await client.execute('CREATE INDEX IF NOT EXISTS idx_posts_publishedAt ON posts(publishedAt DESC)');
+  await client.execute('CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category)');
 }
 
-// Add embeddedMedia column if it doesn't exist (migration)
-try {
-  db.prepare('ALTER TABLE posts ADD COLUMN embeddedMedia TEXT').run();
-} catch (error) {
-  // Column already exists, ignore error
+// Initialize on module load (only in development)
+// In production (Vercel), tables should be created via migration script
+if (process.env.NODE_ENV !== 'production') {
+  initializeDatabase().catch(console.error);
 }
 
-// Create index on slug for faster lookups
-db.prepare('CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug)').run();
-db.prepare('CREATE INDEX IF NOT EXISTS idx_posts_publishedAt ON posts(publishedAt DESC)').run();
-db.prepare('CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category)').run();
-
-export default db;
+export { client, initializeDatabase };

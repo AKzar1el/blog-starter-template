@@ -3,6 +3,10 @@ import PostCard from '@/components/PostCard';
 import { Metadata } from 'next';
 import { BLOG_CATEGORIES } from '@/lib/constants';
 
+// Force dynamic rendering for pages that use the database
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Blog',
   description: 'Browse all our articles, insights, and stories on technology, development, and innovation.',
@@ -18,19 +22,19 @@ interface BlogPageProps {
   searchParams: { page?: string; category?: string };
 }
 
-export default function BlogPage({ searchParams }: BlogPageProps) {
+export default async function BlogPage({ searchParams }: BlogPageProps) {
   const currentPage = parseInt(searchParams.page || '1', 10);
   const selectedCategory = searchParams.category || 'All Blog Posts';
   const offset = (currentPage - 1) * POSTS_PER_PAGE;
 
   // Get posts based on category
   const posts = selectedCategory === 'All Blog Posts'
-    ? getAllPosts(POSTS_PER_PAGE, offset)
-    : getPostsByCategory(selectedCategory, POSTS_PER_PAGE, offset);
+    ? await getAllPosts(POSTS_PER_PAGE, offset)
+    : await getPostsByCategory(selectedCategory, POSTS_PER_PAGE, offset);
 
   const totalPosts = selectedCategory === 'All Blog Posts'
-    ? getPostCount()
-    : getPostCountByCategory(selectedCategory);
+    ? await getPostCount()
+    : await getPostCountByCategory(selectedCategory);
 
   const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE);
 

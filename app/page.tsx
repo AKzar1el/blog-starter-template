@@ -2,8 +2,12 @@ import Link from 'next/link';
 import { getAllPosts } from '@/lib/db/posts';
 import PostCard from '@/components/PostCard';
 
-export default function Home() {
-  const posts = getAllPosts(6);
+// Force dynamic rendering for pages that use the database
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function Home() {
+  const posts = await getAllPosts(6);
   const postsWithParsedTags = posts.map(post => ({
     ...post,
     tags: JSON.parse(post.tags),

@@ -86,11 +86,11 @@ export async function POST(request: NextRequest) {
     let slug = body.slug || slugify(title);
 
     // Check for duplicate slug and handle it
-    let existingPost = getPostBySlug(slug);
+    let existingPost = await getPostBySlug(slug);
     if (existingPost) {
       // Append timestamp to make slug unique
       slug = `${slug}-${Date.now()}`;
-      existingPost = getPostBySlug(slug);
+      existingPost = await getPostBySlug(slug);
 
       // If still exists (very unlikely), return error
       if (existingPost) {
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the post
-    const post = createPost({
+    const post = await createPost({
       slug,
       title,
       content,
@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const offset = searchParams.get('offset');
 
-    const posts = getAllPosts(
+    const posts = await getAllPosts(
       limit ? parseInt(limit) : undefined,
       offset ? parseInt(offset) : undefined
     );

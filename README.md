@@ -45,7 +45,7 @@ Perfect for **developers**, **startups**, **indie hackers**, **content creators*
 - **Modern Tech Stack** - Next.js 14+ with App Router, TypeScript, Tailwind CSS
 - **Rich Content Support** - Full Markdown and HTML support with syntax highlighting
 - **13 Blog Categories** - Organized content (Technology, Business, Education, Entertainment, etc.)
-- **SQLite Database** - Reliable, lightweight database (easily upgradeable to PostgreSQL)
+- **Turso Database** - Serverless SQLite database, perfect for edge deployment
 - **Mobile-First Design** - Responsive and beautiful on all devices
 - **Lightning Fast** - Server-side rendering, image optimization, code splitting
 
@@ -91,7 +91,7 @@ Perfect for **developers**, **startups**, **indie hackers**, **content creators*
 
 ## 🚀 Quick Start
 
-Get your blog running in **3 simple steps**:
+Get your blog running in **4 simple steps**:
 
 ### 1️⃣ Clone the repository
 
@@ -100,24 +100,70 @@ git clone https://github.com/AKzar1el/blog-starter-template.git
 cd blog-starter-template
 ```
 
-### 2️⃣ Install dependencies and configure
+### 2️⃣ Set up Turso Database
+
+**Create a free Turso account:**
+1. Go to [https://turso.tech](https://turso.tech)
+2. Sign up with GitHub (it's free!)
+3. Click **"Create Database"**
+4. Name it `blog-db` and click **Create**
+
+**Get your credentials:**
+- Copy the **Database URL** (looks like `libsql://blog-db-xxxxx.turso.io`)
+- Click **"Create Token"** and copy the auth token
+
+**Initialize the database schema:**
+1. In Turso dashboard, click your database
+2. Open the **SQL Shell** or **Console**
+3. Paste and run this SQL:
+
+```sql
+CREATE TABLE posts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  excerpt TEXT NOT NULL,
+  author TEXT NOT NULL,
+  tags TEXT NOT NULL,
+  coverImage TEXT,
+  category TEXT DEFAULT 'All Blog Posts',
+  publishedAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  views INTEGER DEFAULT 0,
+  embeddedMedia TEXT
+);
+
+CREATE INDEX idx_posts_slug ON posts(slug);
+CREATE INDEX idx_posts_publishedAt ON posts(publishedAt DESC);
+CREATE INDEX idx_posts_category ON posts(category);
+```
+
+### 3️⃣ Install dependencies and configure
 
 ```bash
 # Install packages
 npm install
 
 # Set up environment variables
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-**Edit `.env` file:**
+**Edit `.env.local` file with your Turso credentials:**
 ```env
+# Database Configuration (from Turso dashboard)
+TURSO_DATABASE_URL=libsql://your-database-name.turso.io
+TURSO_AUTH_TOKEN=your-turso-auth-token-here
+
+# API Configuration
 API_KEY=your-secure-api-key-here
+
+# Site Configuration
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_SITE_NAME=Your Professional Blog
 ```
 
-### 3️⃣ Start the development server
+### 4️⃣ Start the development server
 
 ```bash
 npm run dev
@@ -129,9 +175,7 @@ npm run dev
 
 ## 📝 Creating Your First Post
 
-You have **two ways** to create posts:
-
-### Option 1: Using the API (Recommended for automation)
+### Using the API (Recommended)
 
 ```bash
 curl -X POST http://localhost:3000/api/posts \
@@ -147,10 +191,6 @@ curl -X POST http://localhost:3000/api/posts \
     "coverImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643"
   }'
 ```
-
-### Option 2: Directly in the Database
-
-Add posts to the SQLite database using any database tool or programmatically.
 
 **For detailed API documentation with all features**, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
 
@@ -169,10 +209,16 @@ module.exports = {
 }
 ```
 
-**`.env`** - Environment variables:
+**`.env.local`** - Environment variables:
 ```env
-# Required
+# Required - Database Configuration (Turso)
+TURSO_DATABASE_URL=libsql://your-database.turso.io
+TURSO_AUTH_TOKEN=your-turso-auth-token
+
+# Required - API Configuration
 API_KEY=your-secure-random-api-key
+
+# Required - Site Configuration
 NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 NEXT_PUBLIC_SITE_NAME=Your Blog Name
 
@@ -192,9 +238,10 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX  # Google Analytics
 - Default categories: Technology, Business, Education, Ethics, Art, Entertainment, Fun, Games, Music, Politics, History, News
 
 **Database:**
-- SQLite by default (perfect for getting started)
-- Easily migrate to PostgreSQL or MySQL for production
+- Turso (serverless SQLite) - Perfect for production and edge deployment
+- SQLite-compatible syntax - Easy to work with
 - Schema defined in `lib/db/index.ts`
+- Initialization script available: `npm run init-db`
 
 ---
 
@@ -227,14 +274,17 @@ blog-starter-template/
 │   └── ShareButtons.tsx              # Social sharing
 ├── lib/
 │   ├── db/
-│   │   ├── index.ts                  # Database setup
+│   │   ├── index.ts                  # Database setup (Turso client)
 │   │   └── posts.ts                  # Post operations
 │   ├── constants.ts                  # Blog categories & config
 │   ├── media-utils.ts                # Media processing
 │   └── utils.ts                      # Helper functions
+├── scripts/
+│   └── init-db.ts                    # Database initialization script
 ├── public/                           # Static assets
 ├── .env.example                      # Environment template
 ├── API_DOCUMENTATION.md              # Full API docs
+├── DATABASE_MIGRATION.md             # Database setup guide
 └── package.json
 ```
 
@@ -376,13 +426,18 @@ Deploy your blog to production with one click:
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/AKzar1el/blog-starter-template)
 
 **Steps:**
-1. Click the button above
-2. Connect your GitHub account
-3. Set environment variables:
-   - `API_KEY`
-   - `NEXT_PUBLIC_SITE_URL`
-   - `NEXT_PUBLIC_SITE_NAME`
-4. Deploy! 🎉
+1. **Set up Turso Database** (see [Quick Start](#-quick-start) above)
+2. Click the deploy button above
+3. Connect your GitHub account
+4. Set environment variables (for Production, Preview, and Development):
+   - `TURSO_DATABASE_URL` - Your Turso database URL
+   - `TURSO_AUTH_TOKEN` - Your Turso auth token
+   - `API_KEY` - Choose a secure API key
+   - `NEXT_PUBLIC_SITE_URL` - Your Vercel deployment URL
+   - `NEXT_PUBLIC_SITE_NAME` - Your blog name
+5. Deploy! 🎉
+
+**Important:** Make sure your Turso database is initialized with the schema (see Quick Start step 2️⃣) before deploying.
 
 ### Netlify
 
@@ -396,7 +451,7 @@ This standard Next.js app can deploy to:
 - **DigitalOcean App Platform** - [Deploy Guide](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-next-js-app-to-app-platform)
 - **AWS Amplify** - [Deploy Guide](https://docs.amplify.aws/guides/hosting/nextjs/q/platform/js/)
 
-**💡 Production Tip**: For production, consider upgrading from SQLite to PostgreSQL or MySQL for better performance and scalability.
+**💡 Production Tip**: Turso is production-ready and serverless, perfect for edge deployment. The free tier includes everything you need to get started!
 
 ---
 
@@ -409,9 +464,9 @@ This standard Next.js app can deploy to:
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS
 
 ### Content & Data
-- **[Better-SQLite3](https://github.com/WiseLibs/better-sqlite3)** - Fast SQLite database
-- **[Marked](https://marked.js.org/)** - Markdown parser
-- **[DOMPurify](https://github.com/cure53/DOMPurify)** - XSS protection for HTML
+- **[Turso (@libsql/client)](https://turso.tech/)** - Serverless SQLite database
+- **[react-markdown](https://github.com/remarkjs/react-markdown)** - Markdown renderer
+- **[rehype-highlight](https://github.com/rehypejs/rehype-highlight)** - Code syntax highlighting
 
 ### SEO & Performance
 - **[Next/Image](https://nextjs.org/docs/api-reference/next/image)** - Automatic image optimization
@@ -494,9 +549,30 @@ Your blog is secure by default:
 ## 📖 Documentation
 
 - **[API Documentation](API_DOCUMENTATION.md)** - Complete API reference with examples
+- **[Database Migration Guide](DATABASE_MIGRATION.md)** - Turso setup and migration instructions
 - **Installation Guide** - See [Quick Start](#-quick-start) above
 - **Configuration** - See [Configuration](#️-configuration) above
 - **Deployment Guide** - See [Deployment](#-deployment) above
+
+### Database (Turso)
+
+This blog uses **Turso** - a serverless SQLite database perfect for modern web applications:
+
+**Why Turso?**
+- ✅ **Serverless** - No infrastructure to manage
+- ✅ **SQLite-compatible** - Familiar SQL syntax
+- ✅ **Edge-ready** - Deploy close to your users
+- ✅ **Free tier** - Generous limits for most blogs
+- ✅ **Fast** - Sub-10ms query latency
+- ✅ **Scalable** - Grows with your blog
+
+**Key Features:**
+- Automatic backups and point-in-time recovery
+- Built-in replication for high availability
+- Web dashboard for easy management
+- CLI tools for advanced operations
+
+For detailed setup instructions, see the [Quick Start](#-quick-start) guide above.
 
 ---
 
@@ -642,6 +718,16 @@ Built with ❤️ using amazing open-source tools:
 ---
 
 ## 📝 What's New
+
+### Version 2.1 (November 2024)
+
+**🚀 Database Migration to Turso**
+- Migrated from SQLite to Turso (serverless SQLite)
+- Perfect compatibility with Vercel and edge deployment
+- Sub-10ms query latency
+- Built-in backups and replication
+- Easy setup with web dashboard
+- Production-ready from day one
 
 ### Version 2.0 (November 2024)
 

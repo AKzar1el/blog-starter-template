@@ -2,24 +2,28 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 import { getPostBySlug, incrementViews, getAllPosts, EmbeddedMedia } from '@/lib/db/posts';
 import { formatDate, calculateReadingTime } from '@/lib/utils';
 import { getShimmerDataURL } from '@/lib/image-utils';
 import MediaEmbed from '@/components/MediaEmbed';
 
+// Force dynamic rendering for pages that use the database
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Dynamically import heavy client components to reduce initial bundle size
 // This ensures react-markdown and related plugins are code-split
-const MarkdownContent = dynamic(() => import('@/components/MarkdownContent'), {
+const MarkdownContent = dynamicImport(() => import('@/components/MarkdownContent'), {
   loading: () => <div className="animate-pulse h-96 bg-gray-100 rounded-lg" />,
   ssr: false, // Disable SSR for markdown content to reduce server bundle
 });
 
-const TableOfContents = dynamic(() => import('@/components/TableOfContents'), {
+const TableOfContents = dynamicImport(() => import('@/components/TableOfContents'), {
   ssr: false, // Client-side only component
 });
 
-const ShareButtons = dynamic(() => import('@/components/ShareButtons'), {
+const ShareButtons = dynamicImport(() => import('@/components/ShareButtons'), {
   ssr: false, // Client-side only component
 });
 
@@ -27,15 +31,8 @@ interface PostPageProps {
   params: { slug: string };
 }
 
-export async function generateStaticParams() {
-  const posts = getAllPosts();
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
-}
-
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
-  const post = getPostBySlug(params.slug);
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     return {
@@ -74,15 +71,15 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   };
 }
 
-export default function PostPage({ params }: PostPageProps) {
-  const post = getPostBySlug(params.slug);
+export default async function PostPage({ params }: PostPageProps) {
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     notFound();
   }
 
   // Increment views
-  incrementViews(params.slug);
+  await incrementViews(params.slug);
 
   const tags = JSON.parse(post.tags);
   const embeddedMedia: EmbeddedMedia[] = post.embeddedMedia ? JSON.parse(post.embeddedMedia) : [];
