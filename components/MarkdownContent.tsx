@@ -27,22 +27,22 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
     <div className="prose prose-lg prose-gray max-w-none
       prose-headings:scroll-mt-20
       prose-h1:text-4xl prose-h1:font-bold prose-h1:mb-4
-      prose-h2:text-3xl prose-h2:font-semibold prose-h2:mt-12 prose-h2:mb-4 prose-h2:border-b prose-h2:pb-2
+      prose-h2:text-3xl prose-h2:font-semibold prose-h2:mt-12 prose-h2:mb-4 prose-h2:border-b prose-h2:pb-2 dark:prose-h2:border-gray-700
       prose-h3:text-2xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-3
-      prose-p:text-gray-700 prose-p:leading-relaxed
+      prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed
       prose-a:text-accent-600 prose-a:no-underline hover:prose-a:underline
-      prose-strong:text-gray-900 prose-strong:font-semibold
-      prose-code:text-accent-600 prose-code:bg-accent-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
-      prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:overflow-x-auto
-      prose-blockquote:border-l-accent-500 prose-blockquote:bg-gray-50 prose-blockquote:py-1 prose-blockquote:px-4
+      prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold
+      prose-code:text-accent-600 dark:prose-code:text-accent-400 prose-code:bg-accent-50 dark:prose-code:bg-accent-900/30 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
+      prose-pre:bg-gray-100 dark:prose-pre:bg-gray-900 prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:overflow-x-auto
+      prose-blockquote:border-l-accent-500 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800 prose-blockquote:py-1 prose-blockquote:px-4
       prose-ul:list-disc prose-ul:ml-6
       prose-ol:list-decimal prose-ol:ml-6
-      prose-li:text-gray-700
+      prose-li:text-gray-700 dark:prose-li:text-gray-300
       prose-img:rounded-lg prose-img:shadow-md
-      prose-hr:border-gray-200
+      prose-hr:border-gray-200 dark:prose-hr:border-gray-700
       prose-table:border-collapse
-      prose-th:bg-gray-50 prose-th:font-semibold prose-th:text-left prose-th:p-3 prose-th:border prose-th:border-gray-300
-      prose-td:p-3 prose-td:border prose-td:border-gray-300
+      prose-th:bg-gray-50 dark:prose-th:bg-gray-800 prose-th:font-semibold prose-th:text-left prose-th:p-3 prose-th:border prose-th:border-gray-300 dark:prose-th:border-gray-600
+      prose-td:p-3 prose-td:border prose-td:border-gray-300 dark:prose-td:border-gray-600
     ">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}

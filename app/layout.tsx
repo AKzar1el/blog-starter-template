@@ -47,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         {/* Critical inline CSS for immediate rendering - prevents FOUC and improves LCP */}
         <style dangerouslySetInnerHTML={{ __html: `
