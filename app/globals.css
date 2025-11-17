@@ -39,6 +39,41 @@
 }
 
 @layer utilities {
+  /* Custom scrollbar styling for TOC */
+  .scrollbar-toc {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(209 213 219) transparent;
+  }
+
+  .dark .scrollbar-toc {
+    scrollbar-color: rgb(75 85 99) transparent;
+  }
+
+  .scrollbar-toc::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-toc::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-toc::-webkit-scrollbar-thumb {
+    background-color: rgb(209 213 219);
+    border-radius: 3px;
+  }
+
+  .scrollbar-toc::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156 163 175);
+  }
+
+  .dark .scrollbar-toc::-webkit-scrollbar-thumb {
+    background-color: rgb(75 85 99);
+  }
+
+  .dark .scrollbar-toc::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(107 114 128);
+  }
+
   .fade-in {
     animation: fadeIn 0.6s ease-in;
   }

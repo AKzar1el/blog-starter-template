@@ -62,7 +62,7 @@ export default function TableOfContents({ markdown }: TableOfContentsProps) {
     <nav className="hidden xl:block sticky top-24 w-64 self-start">
       <div
         ref={tocRef}
-        className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2"
+        className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2 scrollbar-toc"
       >
         <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 sticky top-0 bg-white dark:bg-gray-900 pb-2 -ml-4 pl-4">
           Table of Contents
