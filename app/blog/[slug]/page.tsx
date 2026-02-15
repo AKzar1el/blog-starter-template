@@ -15,9 +15,9 @@ export const revalidate = 0;
 
 // Dynamically import heavy client components to reduce initial bundle size
 // This ensures react-markdown and related plugins are code-split
+// SSR is enabled (default) so article content is included in the initial HTML for SEO
 const MarkdownContent = dynamicImport(() => import('@/components/MarkdownContent'), {
   loading: () => <div className="animate-pulse h-96 bg-gray-100 dark:bg-gray-800 rounded-lg" />,
-  ssr: false, // Disable SSR for markdown content to reduce server bundle
 });
 
 const TableOfContents = dynamicImport(() => import('@/components/TableOfContents'), {

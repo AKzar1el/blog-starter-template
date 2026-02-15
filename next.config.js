@@ -16,24 +16,14 @@ const nextConfig = {
     // Minimize layout shift with explicit dimensions
     minimumCacheTTL: 60,
   },
-  // Optimize CSS and JS compilation
+  // Strip console.log in production builds
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Enable optimizations
   reactStrictMode: true,
-  // Optimize fonts
-  optimizeFonts: true,
-  // Reduce bundle size
-  swcMinify: true,
   // Optimize package imports to reduce bundle size
   experimental: {
     optimizePackageImports: ['react-markdown', 'remark-gfm', 'rehype-highlight', 'rehype-raw'],
-  },
-  // Webpack customizations (tree shaking is enabled by default in Next.js production builds)
-  webpack: (config, { isServer }) => {
-    // Additional webpack customizations can go here if needed
-    return config;
   },
 }
 

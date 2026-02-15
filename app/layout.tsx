@@ -1,8 +1,26 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#111827' },
+  ],
+};
 
 export const metadata: Metadata = {
   title: {
@@ -47,13 +65,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} antialiased`} suppressHydrationWarning>
       <head>
         <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/feed" />
-        {/* Critical inline CSS for immediate rendering - prevents FOUC and improves LCP */}
+        {/* Inline script to prevent dark mode FOUC - runs before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t)){document.documentElement.classList.add('dark')}}catch(e){}})();
+        ` }} />
+        {/* Critical inline CSS for immediate rendering - improves LCP */}
         <style dangerouslySetInnerHTML={{ __html: `
           *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}
-          html{line-height:1.5;-webkit-text-size-adjust:100%;tab-size:4;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
+          html{line-height:1.5;-webkit-text-size-adjust:100%;tab-size:4;font-family:var(--font-inter),ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
           body{margin:0;line-height:inherit;background:#fff;color:#111827;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
           .dark body{background:#111827;color:#f3f4f6}
           h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}
@@ -62,7 +84,7 @@ export default function RootLayout({
           .flex-col{flex-direction:column}
           .min-h-screen{min-height:100vh}
           .flex-grow{flex-grow:1}
-          .font-sans{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
+          .font-sans{font-family:var(--font-inter),ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
           .bg-white{background-color:#fff}
           .dark .dark\\:bg-gray-900{background-color:#111827}
           .text-gray-900{color:#111827}
