@@ -23,7 +23,7 @@ const nextConfig = {
   reactStrictMode: true,
   // Optimize package imports to reduce bundle size
   experimental: {
-    optimizePackageImports: ['react-markdown', 'remark-gfm', 'rehype-highlight', 'rehype-raw'],
+    optimizePackageImports: ['react-markdown', 'remark-gfm', 'rehype-highlight', 'rehype-raw', 'highlight.js'],
   },
 }
 
