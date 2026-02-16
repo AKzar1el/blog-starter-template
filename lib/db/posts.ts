@@ -225,6 +225,20 @@ export async function searchPosts(query: string): Promise<Post[]> {
   return result.rows as unknown as Post[];
 }
 
+/**
+ * Builds a parameterized NOT IN clause from a set of IDs.
+ * Returns { clause, params } where clause is e.g. "id NOT IN (?, ?)"
+ * and params is the array of ID values. Falls back to "1=1" if set is empty.
+ */
+function buildNotInClause(seenIds: Set<number>): { clause: string; params: number[] } {
+  if (seenIds.size === 0) {
+    return { clause: '1=1', params: [] };
+  }
+  const ids = Array.from(seenIds);
+  const placeholders = ids.map(() => '?').join(',');
+  return { clause: `id NOT IN (${placeholders})`, params: ids };
+}
+
 export async function getRelatedPosts(currentSlug: string, limit: number = 2): Promise<Post[]> {
   const currentPost = await getPostBySlug(currentSlug);
   if (!currentPost) return [];
@@ -252,16 +266,17 @@ export async function getRelatedPosts(currentSlug: string, limit: number = 2): P
   if (relatedPosts.length < limit && titleWords.length > 0) {
     for (const keyword of titleWords) {
       if (relatedPosts.length >= limit) break;
+      const { clause, params } = buildNotInClause(seenIds);
 
       const result = await client.execute({
         sql: `
           SELECT * FROM posts
-          WHERE slug != ? AND id NOT IN (${seenIds.size > 0 ? Array.from(seenIds).join(',') : '0'})
+          WHERE slug != ? AND ${clause}
           AND LOWER(title) LIKE ?
           ORDER BY publishedAt DESC
           LIMIT ?
         `,
-        args: [currentSlug, `%${keyword}%`, limit - relatedPosts.length]
+        args: [currentSlug, ...params, `%${keyword}%`, limit - relatedPosts.length]
       });
 
       const posts = result.rows as unknown as Post[];
@@ -278,16 +293,17 @@ export async function getRelatedPosts(currentSlug: string, limit: number = 2): P
   if (relatedPosts.length < limit && currentTags.length > 0) {
     for (const tag of currentTags) {
       if (relatedPosts.length >= limit) break;
+      const { clause, params } = buildNotInClause(seenIds);
 
       const result = await client.execute({
         sql: `
           SELECT * FROM posts
-          WHERE slug != ? AND id NOT IN (${seenIds.size > 0 ? Array.from(seenIds).join(',') : '0'})
+          WHERE slug != ? AND ${clause}
           AND tags LIKE ?
           ORDER BY publishedAt DESC
           LIMIT ?
         `,
-        args: [currentSlug, `%"${tag}"%`, limit - relatedPosts.length]
+        args: [currentSlug, ...params, `%"${tag}"%`, limit - relatedPosts.length]
       });
 
       const posts = result.rows as unknown as Post[];
@@ -302,14 +318,16 @@ export async function getRelatedPosts(currentSlug: string, limit: number = 2): P
 
   // 3. Try to find posts from the same category
   if (relatedPosts.length < limit) {
+    const { clause, params } = buildNotInClause(seenIds);
+
     const result = await client.execute({
       sql: `
         SELECT * FROM posts
-        WHERE slug != ? AND category = ? AND id NOT IN (${seenIds.size > 0 ? Array.from(seenIds).join(',') : '0'})
+        WHERE slug != ? AND category = ? AND ${clause}
         ORDER BY publishedAt DESC
         LIMIT ?
       `,
-      args: [currentSlug, currentPost.category, limit - relatedPosts.length]
+      args: [currentSlug, currentPost.category, ...params, limit - relatedPosts.length]
     });
 
     const posts = result.rows as unknown as Post[];
@@ -323,14 +341,16 @@ export async function getRelatedPosts(currentSlug: string, limit: number = 2): P
 
   // 4. Fallback: Get freshest posts
   if (relatedPosts.length < limit) {
+    const { clause, params } = buildNotInClause(seenIds);
+
     const result = await client.execute({
       sql: `
         SELECT * FROM posts
-        WHERE slug != ? AND id NOT IN (${seenIds.size > 0 ? Array.from(seenIds).join(',') : '0'})
+        WHERE slug != ? AND ${clause}
         ORDER BY publishedAt DESC
         LIMIT ?
       `,
-      args: [currentSlug, limit - relatedPosts.length]
+      args: [currentSlug, ...params, limit - relatedPosts.length]
     });
 
     const posts = result.rows as unknown as Post[];

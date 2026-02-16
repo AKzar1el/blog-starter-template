@@ -33,11 +33,11 @@ export default function ShareButtons({ title, slug }: ShareButtonsProps) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm font-medium text-gray-700">Share:</span>
+      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Share:</span>
 
       <button
         onClick={shareOnTwitter}
-        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
         aria-label="Share on Twitter"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -47,7 +47,7 @@ export default function ShareButtons({ title, slug }: ShareButtonsProps) {
 
       <button
         onClick={shareOnLinkedIn}
-        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
         aria-label="Share on LinkedIn"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -57,7 +57,7 @@ export default function ShareButtons({ title, slug }: ShareButtonsProps) {
 
       <button
         onClick={handleCopyLink}
-        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors relative"
+        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors relative"
         aria-label="Copy link"
       >
         {copied ? (
