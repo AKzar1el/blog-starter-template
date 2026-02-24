@@ -2,6 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createPost, getAllPosts, getPostBySlug } from '@/lib/db/posts';
 import { slugify } from '@/lib/utils';
 import { BLOG_CATEGORIES, isValidCategory } from '@/lib/constants';
+const MAX_POSTS_LIMIT = 100;
+
+function parsePaginationParam(value: string | null, field: 'limit' | 'offset'): number | undefined {
+  if (value === null) {
+    return undefined;
+  }
+
+  if (!/^\d+$/.test(value)) {
+    throw new Error(`Invalid ${field}. Must be a non-negative integer.`);
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  if (Number.isNaN(parsed) || parsed < 0) {
+    throw new Error(`Invalid ${field}. Must be a non-negative integer.`);
+  }
+
+  if (field === 'limit') {
+    return Math.min(parsed, MAX_POSTS_LIMIT);
+  }
+
+  return parsed;
+}
+
 
 // POST - Create a new blog post
 // Supports rich HTML content including headings (h1, h2, h3), bold, links with SEO attributes
@@ -151,13 +175,10 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const limit = searchParams.get('limit');
-    const offset = searchParams.get('offset');
+    const limit = parsePaginationParam(searchParams.get('limit'), 'limit');
+    const offset = parsePaginationParam(searchParams.get('offset'), 'offset');
 
-    const posts = await getAllPosts(
-      limit ? parseInt(limit) : undefined,
-      offset ? parseInt(offset) : undefined
-    );
+    const posts = await getAllPosts(limit, offset);
 
     // Parse tags and embeddedMedia for all posts
     const postsWithParsedData = posts.map(post => ({
@@ -172,6 +193,13 @@ export async function GET(request: NextRequest) {
       posts: postsWithParsedData,
     });
   } catch (error: any) {
+    if (error.message?.startsWith('Invalid limit') || error.message?.startsWith('Invalid offset')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
     console.error('Error fetching posts:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error.message },
