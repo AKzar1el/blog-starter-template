@@ -1,6 +1,6 @@
 'use client';
 
-import { Children, ReactNode } from 'react';
+import { Children, isValidElement, ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
@@ -36,8 +36,24 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
   };
 
   const getHeadingId = (children: ReactNode): string => {
+    const extractTextContent = (node: ReactNode): string => {
+      if (typeof node === 'string' || typeof node === 'number') {
+        return String(node);
+      }
+
+      if (Array.isArray(node)) {
+        return node.map(extractTextContent).join('');
+      }
+
+      if (isValidElement(node)) {
+        return extractTextContent(node.props.children);
+      }
+
+      return '';
+    };
+
     const text = Children.toArray(children)
-      .map(child => (typeof child === 'string' ? child : ''))
+      .map(extractTextContent)
       .join('');
 
     return slugify(text);
