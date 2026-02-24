@@ -1,9 +1,12 @@
 'use client';
 
+import { Children, ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+import { slugify } from '@/lib/utils';
 import 'highlight.js/styles/github-dark.css';
 
 interface MarkdownContentProps {
@@ -23,6 +26,23 @@ interface MarkdownContentProps {
  * <a href="https://example.com" title="Example Website">Visit Example</a>
  */
 export default function MarkdownContent({ content }: MarkdownContentProps) {
+  const sanitizeSchema = {
+    ...defaultSchema,
+    attributes: {
+      ...defaultSchema.attributes,
+      code: [...(defaultSchema.attributes?.code || []), ['className']],
+      span: [...(defaultSchema.attributes?.span || []), ['className']],
+    },
+  };
+
+  const getHeadingId = (children: ReactNode): string => {
+    const text = Children.toArray(children)
+      .map(child => (typeof child === 'string' ? child : ''))
+      .join('');
+
+    return slugify(text);
+  };
+
   return (
     <div className="prose prose-lg prose-gray max-w-none
       prose-headings:scroll-mt-20
@@ -46,21 +66,18 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
     ">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight, rehypeRaw]}
+        rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema], rehypeHighlight]}
         components={{
           h1: ({ node, ...props }) => {
-            const text = props.children?.toString() || '';
-            const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
+            const id = getHeadingId(props.children);
             return <h1 id={id} {...props} />;
           },
           h2: ({ node, ...props }) => {
-            const text = props.children?.toString() || '';
-            const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
+            const id = getHeadingId(props.children);
             return <h2 id={id} {...props} />;
           },
           h3: ({ node, ...props }) => {
-            const text = props.children?.toString() || '';
-            const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
+            const id = getHeadingId(props.children);
             return <h3 id={id} {...props} />;
           },
           // Enhanced link component with SEO attributes
