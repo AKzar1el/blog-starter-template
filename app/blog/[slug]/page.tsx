@@ -51,6 +51,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
   const tags = JSON.parse(post.tags);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const ogImageUrl = post.coverImage || `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&author=${encodeURIComponent(post.author)}&category=${encodeURIComponent(post.category)}`;
 
   return {
     title: post.title,
@@ -65,14 +66,14 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
       modifiedTime: post.updatedAt,
       authors: [post.author],
       tags: tags,
-      images: post.coverImage ? [post.coverImage] : [],
+      images: [{ url: ogImageUrl }],
       url: `${baseUrl}/blog/${post.slug}`,
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.excerpt,
-      images: post.coverImage ? [post.coverImage] : [],
+      images: [ogImageUrl],
     },
     alternates: {
       canonical: `${baseUrl}/blog/${post.slug}`,
