@@ -1,10 +1,11 @@
-# 🚀 Your Professional Blog - Modern Blog Starter Template
+# 🚀 Your Professional Blog - Modern Next.js Blog Starter Template
 
-![GitHub stars](https://img.shields.io/github/stars/AKzar1el/blog-starter-template?style=social)
-![GitHub forks](https://img.shields.io/github/forks/AKzar1el/blog-starter-template?style=social)
-![GitHub issues](https://img.shields.io/github/issues/AKzar1el/blog-starter-template)
-![License](https://img.shields.io/github/license/AKzar1el/blog-starter-template)
-![Last commit](https://img.shields.io/github/last-commit/AKzar1el/blog-starter-template)
+[![Next.js](https://img.shields.io/badge/Next.js-14+-black?logo=next.dot.js)](https://nextjs.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v3-blue?logo=tailwind-css)](https://tailwindcss.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Database](https://img.shields.io/badge/Database-Turso%20%2F%20SQLite-teal?logo=sqlite)](https://turso.tech)
+[![License](https://img.shields.io/github/license/AKzar1el/blog-starter-template)](https://github.com/AKzar1el/blog-starter-template/blob/main/LICENSE.md)
+[![Stars](https://img.shields.io/github/stars/AKzar1el/blog-starter-template?style=social)](https://github.com/AKzar1el/blog-starter-template/stargazers)
 
 > Launch your professional blog in minutes, not days. A production-ready, SEO-optimized blog platform with rich content support, multimedia embedding, and powerful API.
 
@@ -14,7 +15,7 @@
 
 ## 📸 Preview
 
-![Blog Template Preview](screenshot.png)
+![Blog Starter Template Preview](screenshot.png)
 <!-- Replace SCREENSHOT_URL_HERE with your actual screenshot URL -->
 
 <!-- Optional: Add more screenshots
@@ -223,8 +224,9 @@ API_KEY=your-secure-random-api-key
 NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 NEXT_PUBLIC_SITE_NAME=Your Blog Name
 
-# Optional
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX  # Google Analytics
+# Optional - Analytics Integration
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX                 # Google Analytics 4 ID
+NEXT_PUBLIC_PLAUSIBLE_DOMAIN=yourdomain.com    # Plausible Analytics Domain
 ```
 
 ### Customization
@@ -768,6 +770,10 @@ For detailed API usage with new features, see [API_DOCUMENTATION.md](API_DOCUMEN
 
 **Launch your blog today. Start writing tomorrow.**
 
-[⬆ Back to Top](#-your-professional-blog---modern-blog-starter-template)
+---
+
+*If you find this starter template helpful, please consider leaving a ⭐ to support the project!*
+
+[⬆ Back to Top](#-your-professional-blog---modern-nextjs-blog-starter-template)
 
 </div>
