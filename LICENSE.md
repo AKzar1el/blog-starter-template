@@ -11,7 +11,7 @@ This software is available under two different licenses:
 - Learning and experimentation
 - Open source projects
 
-See [LICENSE-MIT](LICENSE-MIT) for the full terms.
+See [LICENSE-MIT.txt](LICENSE-MIT.txt) for the full terms and non-commercial restriction.
 
 ## 2. Commercial Use License
 

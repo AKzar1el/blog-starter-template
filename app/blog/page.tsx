@@ -19,12 +19,14 @@ export const metadata: Metadata = {
 const POSTS_PER_PAGE = 12;
 
 interface BlogPageProps {
-  searchParams: { page?: string; category?: string };
+  searchParams: Promise<{ page?: string | string[]; category?: string | string[] }>;
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const currentPage = parseInt(searchParams.page || '1', 10);
-  const selectedCategory = searchParams.category || 'All Blog Posts';
+  const query = await searchParams;
+  const page = typeof query.page === 'string' ? Number(query.page) : 1;
+  const currentPage = Number.isSafeInteger(page) && page > 0 && page <= Math.floor(Number.MAX_SAFE_INTEGER / POSTS_PER_PAGE) ? page : 1;
+  const selectedCategory = typeof query.category === 'string' ? query.category : 'All Blog Posts';
   const offset = (currentPage - 1) * POSTS_PER_PAGE;
 
   // Get posts based on category

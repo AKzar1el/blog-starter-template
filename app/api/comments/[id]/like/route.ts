@@ -7,12 +7,13 @@ import { likeComment } from '@/lib/db/comments';
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const commentId = parseInt(params.id);
+    const { id } = await params;
+    const commentId = Number(id);
 
-    if (isNaN(commentId)) {
+    if (!Number.isSafeInteger(commentId) || commentId <= 0) {
       return NextResponse.json(
         { error: 'Invalid comment ID' },
         { status: 400 }

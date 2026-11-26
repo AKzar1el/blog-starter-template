@@ -1,6 +1,6 @@
 # 🚀 Your Professional Blog - Modern Next.js Blog Starter Template
 
-[![Next.js](https://img.shields.io/badge/Next.js-14+-black?logo=next.dot.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.dot.js)](https://nextjs.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v3-blue?logo=tailwind-css)](https://tailwindcss.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Database](https://img.shields.io/badge/Database-Turso%20%2F%20SQLite-teal?logo=sqlite)](https://turso.tech)
@@ -9,7 +9,7 @@
 
 > Launch your professional blog in minutes, not days. A production-ready, SEO-optimized blog platform with rich content support, multimedia embedding, and powerful API.
 
-[🌐 Live Demo](#) | [📖 Full API Docs](API_DOCUMENTATION.md) | [🐛 Report Bug](https://github.com/AKzar1el/blog-starter-template/issues) | [✨ Request Feature](https://github.com/AKzar1el/blog-starter-template/issues)
+[🌐 Live Demo](https://blog-starter-template.vercel.app/) | [📖 Full API Docs](API_DOCUMENTATION.md) | [🐛 Report Bug](https://github.com/AKzar1el/blog-starter-template/issues) | [✨ Request Feature](https://github.com/AKzar1el/blog-starter-template/issues)
 
 ---
 
@@ -29,9 +29,9 @@
 
 Building a professional blog from scratch takes weeks of development time. **Your Professional Blog** gives you everything you need to start publishing content immediately:
 
-- ✅ **Production-ready in 5 minutes** - Clone, install, and start writing
-- ✅ **SEO optimized out of the box** - Rank higher on Google from day one
-- ✅ **No configuration required** - Sensible defaults that just work
+- ✅ **Reusable blog starter** - Clone, configure the database and start writing
+- ✅ **Technical SEO features** - Metadata, sitemap and structured data
+- ✅ **Documented configuration** - Database and API settings are required
 - ✅ **Professional design** - Clean, modern UI with smooth animations
 - ✅ **Powerful API** - Programmatic content creation for automation
 - ✅ **Free for personal use** - Start your blog journey today
@@ -43,7 +43,7 @@ Perfect for **developers**, **startups**, **indie hackers**, **content creators*
 ## ✨ Features
 
 ### 🎯 Core Functionality
-- **Modern Tech Stack** - Next.js 14+ with App Router, TypeScript, Tailwind CSS
+- **Modern Tech Stack** - Next.js 16 with App Router, React 19, TypeScript, Tailwind CSS
 - **Rich Content Support** - Full Markdown and HTML support with syntax highlighting
 - **13 Blog Categories** - Organized content (Technology, Business, Education, Entertainment, etc.)
 - **Turso Database** - Serverless SQLite database, perfect for edge deployment
@@ -63,7 +63,7 @@ Perfect for **developers**, **startups**, **indie hackers**, **content creators*
 - **JSON-LD Structured Data** - Rich search results with article schema
 - **Automatic Sitemap** - Generated sitemap.xml for search engines
 - **Robots.txt** - Proper search engine indexing configuration
-- **90+ Lighthouse Score** - Optimized for Core Web Vitals
+- **Performance features** - Image optimization and code splitting; measure your own deployment
 - **Clean URLs** - SEO-friendly slugs and canonical URLs
 
 ### 🚀 Developer Experience
@@ -95,6 +95,8 @@ Perfect for **developers**, **startups**, **indie hackers**, **content creators*
 
 Get your blog running in **4 simple steps**:
 
+Use Node.js 22 or newer and npm (or pnpm with its checked-in lockfile).
+
 ### 1️⃣ Clone the repository
 
 ```bash
@@ -114,38 +116,13 @@ cd blog-starter-template
 - Copy the **Database URL** (looks like `libsql://blog-db-xxxxx.turso.io`)
 - Click **"Create Token"** and copy the auth token
 
-**Initialize the database schema:**
-1. In Turso dashboard, click your database
-2. Open the **SQL Shell** or **Console**
-3. Paste and run this SQL:
-
-```sql
-CREATE TABLE posts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  slug TEXT UNIQUE NOT NULL,
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  excerpt TEXT NOT NULL,
-  author TEXT NOT NULL,
-  tags TEXT NOT NULL,
-  coverImage TEXT,
-  category TEXT DEFAULT 'All Blog Posts',
-  publishedAt TEXT NOT NULL,
-  updatedAt TEXT NOT NULL,
-  views INTEGER DEFAULT 0,
-  embeddedMedia TEXT
-);
-
-CREATE INDEX idx_posts_slug ON posts(slug);
-CREATE INDEX idx_posts_publishedAt ON posts(publishedAt DESC);
-CREATE INDEX idx_posts_category ON posts(category);
-```
+Initialize all tables using `npm run init-db` after configuring the environment in step 3. The script creates posts, comments, newsletter subscriptions and their indexes. It is idempotent and does not seed or delete existing content.
 
 ### 3️⃣ Install dependencies and configure
 
 ```bash
 # Install packages
-npm install
+npm ci
 
 # Set up environment variables
 cp .env.example .env.local
@@ -168,10 +145,15 @@ NEXT_PUBLIC_SITE_NAME=Your Professional Blog
 ### 4️⃣ Start the development server
 
 ```bash
+npm run init-db
 npm run dev
 ```
 
 🎉 **That's it!** Open [http://localhost:3000](http://localhost:3000) and start blogging!
+
+### Verify a clean installation
+
+Run `npm run verify:template` after installing dependencies. It initializes a disposable local SQLite database, builds the production application, and checks article, search, RSS, sitemap, comment and newsletter flows using synthetic records and an isolated API key. It does not use your production database. `npm run lint` checks the code separately.
 
 ---
 
@@ -426,7 +408,7 @@ Deploy your blog to production with one click:
 
 ### Vercel (Recommended - Free Tier Available)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/AKzar1el/blog-starter-template)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/AKzar1el/blog-starter-template&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,API_KEY,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_SITE_NAME)
 
 **Steps:**
 1. **Set up Turso Database** (see [Quick Start](#-quick-start) above)
@@ -440,7 +422,7 @@ Deploy your blog to production with one click:
    - `NEXT_PUBLIC_SITE_NAME` - Your blog name
 5. Deploy! 🎉
 
-**Important:** Make sure your Turso database is initialized with the schema (see Quick Start step 2️⃣) before deploying.
+**Important:** Run `npm run init-db` against your own new Turso database before deployment. Use separate preview and production databases and tokens; never reuse the example API key or commit credentials. Check Vercel and Turso plan eligibility before provisioning; no paid plan is required for eligible free-tier usage.
 
 ### Netlify
 
@@ -461,8 +443,8 @@ This standard Next.js app can deploy to:
 ## 🛠️ Built With
 
 ### Core Technologies
-- **[Next.js 14+](https://nextjs.org/)** - React framework with App Router
-- **[React 18+](https://reactjs.org/)** - UI library
+- **[Next.js 16](https://nextjs.org/)** - React framework with App Router
+- **[React 19](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type safety
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS
 
@@ -643,7 +625,7 @@ This project is available under **dual licensing**:
 
 ### ✅ Personal & Educational Use (Free)
 
-**Free to use** under the [MIT License](LICENSE) for:
+**Free to use** for the non-commercial purposes described in [LICENSE.md](LICENSE.md) and [LICENSE-MIT.txt](LICENSE-MIT.txt), including:
 - Personal blogs and portfolios
 - Educational projects and learning
 - Non-profit organizations
@@ -715,7 +697,7 @@ Built with ❤️ using amazing open-source tools:
 ## 🔗 Links
 
 - **Repository**: [https://github.com/AKzar1el/blog-starter-template](https://github.com/AKzar1el/blog-starter-template)
-- **Live Demo**: *Coming soon*
+- **Live Demo**: [Professional Blog](https://blog-starter-template.vercel.app/)
 - **Author**: [AKzar1el](https://github.com/AKzar1el)
 
 ---

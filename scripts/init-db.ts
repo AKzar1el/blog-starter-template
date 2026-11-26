@@ -20,8 +20,8 @@ async function initDatabase() {
   const url = process.env.TURSO_DATABASE_URL;
   const authToken = process.env.TURSO_AUTH_TOKEN;
 
-  if (!url || !authToken) {
-    console.error('❌ Error: TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set in .env.local');
+  if (!url || (!url.startsWith('file:') && !authToken)) {
+    console.error('Set TURSO_DATABASE_URL and, for a remote database, TURSO_AUTH_TOKEN before initialization.');
     process.exit(1);
   }
 
@@ -53,6 +53,23 @@ async function initDatabase() {
     await client.execute('CREATE INDEX IF NOT EXISTS idx_posts_publishedAt ON posts(publishedAt DESC)');
     await client.execute('CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category)');
 
+    await client.execute(`
+      CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        postSlug TEXT NOT NULL,
+        username TEXT NOT NULL,
+        content TEXT NOT NULL,
+        parentId INTEGER,
+        likes INTEGER DEFAULT 0,
+        createdAt TEXT NOT NULL,
+        FOREIGN KEY (postSlug) REFERENCES posts(slug) ON DELETE CASCADE,
+        FOREIGN KEY (parentId) REFERENCES comments(id) ON DELETE CASCADE
+      )
+    `);
+    await client.execute('CREATE INDEX IF NOT EXISTS idx_comments_postSlug ON comments(postSlug)');
+    await client.execute('CREATE INDEX IF NOT EXISTS idx_comments_parentId ON comments(parentId)');
+    await client.execute('CREATE INDEX IF NOT EXISTS idx_comments_createdAt ON comments(createdAt DESC)');
+
     console.log('💌 Creating newsletter_emails table...');
     await client.execute(`
       CREATE TABLE IF NOT EXISTS newsletter_emails (
@@ -74,7 +91,9 @@ async function initDatabase() {
     console.log('3. Start publishing posts via the API!');
   } catch (error) {
     console.error('❌ Error initializing database:', error);
-    process.exit(1);
+    process.exitCode = 1;
+  } finally {
+    client.close();
   }
 }
 

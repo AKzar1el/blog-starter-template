@@ -7,6 +7,12 @@ interface CommentsProps {
   postSlug: string;
 }
 
+async function readComments(postSlug: string, signal?: AbortSignal): Promise<{ comments: Comment[]; count: number }> {
+  const response = await fetch(`/api/comments?postSlug=${encodeURIComponent(postSlug)}`, { signal });
+  if (!response.ok) throw new Error('Failed to fetch comments');
+  return response.json();
+}
+
 interface CommentItemProps {
   comment: Comment;
   onReply: (commentId: number) => void;
@@ -147,21 +153,10 @@ export default function Comments({ postSlug }: CommentsProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postSlug]);
-
   const fetchComments = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/comments?postSlug=${postSlug}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch comments');
-      }
-
-      const data = await response.json();
+      const data = await readComments(postSlug);
       setComments(data.comments);
       setCommentCount(data.count);
     } catch (error) {
@@ -171,6 +166,20 @@ export default function Comments({ postSlug }: CommentsProps) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void readComments(postSlug, controller.signal).then(data => {
+      if (controller.signal.aborted) return;
+      setComments(data.comments);
+      setCommentCount(data.count);
+    }).catch(() => {
+      if (!controller.signal.aborted) setError('Failed to load comments');
+    }).finally(() => {
+      if (!controller.signal.aborted) setIsLoading(false);
+    });
+    return () => controller.abort();
+  }, [postSlug]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
