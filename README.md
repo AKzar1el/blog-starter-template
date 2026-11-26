@@ -404,11 +404,11 @@ curl http://localhost:3000/api/posts?limit=10&offset=0
 
 ## 🌐 Deployment
 
-Deploy your blog to production with one click:
+Configure your own database, then deploy your blog to Vercel. See the [deployment and environment guide](DEPLOYMENT.md) for a clean installation and troubleshooting.
 
 ### Vercel (Recommended - Free Tier Available)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/AKzar1el/blog-starter-template&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,API_KEY,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_SITE_NAME)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/AKzar1el/blog-starter-template&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,API_KEY,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_SITE_NAME&envDescription=Configure%20your%20own%20initialized%20Turso%20database%20and%20API%20key.&envLink=https%3A%2F%2Fgithub.com%2FAKzar1el%2Fblog-starter-template%2Fblob%2Fmain%2FDEPLOYMENT.md)
 
 **Steps:**
 1. **Set up Turso Database** (see [Quick Start](#-quick-start) above)
