@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useSyncExternalStore } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -10,40 +10,41 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const themeEvent = 'blog-theme-change';
+let fallbackTheme: Theme = 'dark';
+
+function getTheme(): Theme {
+  try {
+    const saved = window.localStorage.getItem('theme');
+    return saved === 'light' || saved === 'dark' ? saved : fallbackTheme;
+  } catch {
+    return fallbackTheme;
+  }
+}
+
+function subscribeTheme(notify: () => void) {
+  window.addEventListener('storage', notify);
+  window.addEventListener(themeEvent, notify);
+  return () => {
+    window.removeEventListener('storage', notify);
+    window.removeEventListener(themeEvent, notify);
+  };
+}
+
+const getServerTheme = (): Theme => 'dark';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    // Initialize with default, will be updated on mount
-    if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem('theme') as Theme) || 'dark';
-  });
-  const [mounted, setMounted] = useState(false);
+  const theme = useSyncExternalStore(subscribeTheme, getTheme, getServerTheme);
 
   useEffect(() => {
-    // Initialize theme from localStorage on mount
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-
-    if (savedTheme) {
-      setTheme(savedTheme);
-      root.classList.toggle('dark', savedTheme === 'dark');
-    } else {
-      // No saved theme, use default 'dark'
-      localStorage.setItem('theme', 'dark');
-      root.classList.toggle('dark', true);
-    }
-    setMounted(true);
-  }, []); // No dependencies needed - runs once on mount
-
-  useEffect(() => {
-    if (!mounted) return;
-    const root = document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('theme', theme);
-  }, [theme, mounted]);
+    document.documentElement.classList.toggle('dark', getTheme() === 'dark');
+  }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    const next = getTheme() === 'light' ? 'dark' : 'light';
+    fallbackTheme = next;
+    try { window.localStorage.setItem('theme', next); } catch { /* storage may be disabled */ }
+    window.dispatchEvent(new Event(themeEvent));
   };
 
   // Always provide the context to avoid "useTheme must be used within a ThemeProvider" errors

@@ -11,7 +11,7 @@ This software is available under two different licenses:
 - Learning and experimentation
 - Open source projects
 
-See [LICENSE-MIT](LICENSE-MIT) for the full terms.
+See [LICENSE-MIT.txt](LICENSE-MIT.txt) for the full terms and non-commercial restriction.
 
 ## 2. Commercial Use License
 
@@ -62,7 +62,7 @@ If you're building a blog for a client and charging them, that requires a commer
 **Yes!** Both licenses allow modifications. The MIT license requires you to keep the license notice. Commercial licenses come with additional support options.
 
 ### What if I'm not sure which license I need?
-When in doubt, please reach out at your@email.com and we'll help you determine the right license for your use case.
+When in doubt, please reach out at tomi.seregi99@gmail.com to determine the right license for your use case.
 
 ---
 
@@ -80,7 +80,7 @@ I believe in making quality tools accessible for personal use and learning, whil
 ## Support
 
 ### For MIT License Users:
-- Community support through [GitHub Issues](https://github.com/yourusername/yourrepo/issues)
+- Community support through [GitHub Issues](https://github.com/AKzar1el/blog-starter-template/issues)
 - Documentation and guides
 - Best effort maintenance
 
@@ -92,6 +92,4 @@ I believe in making quality tools accessible for personal use and learning, whil
 
 ---
 
-**Last Updated:** [Date]
-
-For any questions about licensing, please contact: your@email.com
+For any questions about licensing, please contact: tomi.seregi99@gmail.com

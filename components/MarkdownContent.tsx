@@ -45,7 +45,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
         return node.map(extractTextContent).join('');
       }
 
-      if (isValidElement(node)) {
+      if (isValidElement<{ children?: ReactNode }>(node)) {
         return extractTextContent(node.props.children);
       }
 

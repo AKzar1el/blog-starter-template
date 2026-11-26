@@ -8,6 +8,7 @@ import { formatDate, calculateReadingTime } from '@/lib/utils';
 import { getShimmerDataURL } from '@/lib/image-utils';
 import MediaEmbed from '@/components/MediaEmbed';
 import PostCard from '@/components/PostCard';
+import { TableOfContents, ShareButtons, Comments, BackToTop } from '@/components/PostClientWidgets';
 
 // Force dynamic rendering for pages that use the database
 export const dynamic = 'force-dynamic';
@@ -20,28 +21,13 @@ const MarkdownContent = dynamicImport(() => import('@/components/MarkdownContent
   loading: () => <div className="animate-pulse h-96 bg-gray-100 dark:bg-gray-800 rounded-lg" />,
 });
 
-const TableOfContents = dynamicImport(() => import('@/components/TableOfContents'), {
-  ssr: false, // Client-side only component
-});
-
-const ShareButtons = dynamicImport(() => import('@/components/ShareButtons'), {
-  ssr: false, // Client-side only component
-});
-
-const Comments = dynamicImport(() => import('@/components/Comments'), {
-  ssr: false, // Client-side only component
-});
-
-const BackToTop = dynamicImport(() => import('@/components/BackToTop'), {
-  ssr: false, // Client-side only component
-});
-
 interface PostPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     return {
@@ -82,14 +68,15 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const post = await getPostBySlug(params.slug);
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
   // Increment views
-  await incrementViews(params.slug);
+  await incrementViews(slug);
 
   const tags = JSON.parse(post.tags);
   const embeddedMedia: EmbeddedMedia[] = post.embeddedMedia ? JSON.parse(post.embeddedMedia) : [];
@@ -97,7 +84,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
   // Get related posts
-  const relatedPosts = await getRelatedPosts(params.slug, 2);
+  const relatedPosts = await getRelatedPosts(slug, 2);
 
   // JSON-LD structured data
   const jsonLd = {
@@ -131,7 +118,7 @@ export default async function PostPage({ params }: PostPageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
 
       <article className="min-h-screen bg-white dark:bg-gray-900">
@@ -276,7 +263,7 @@ export default async function PostPage({ params }: PostPageProps) {
               )}
 
               {/* Comments Section */}
-              <Comments postSlug={params.slug} />
+              <Comments key={slug} postSlug={slug} />
             </div>
 
             {/* Sidebar - Table of Contents */}

@@ -11,10 +11,12 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Close mobile menu on route change
-  useEffect(() => {
+  // Reset the menu before rendering a different route.
+  const [previousPath, setPreviousPath] = useState(pathname);
+  if (previousPath !== pathname) {
+    setPreviousPath(pathname);
     setMobileMenuOpen(false);
-  }, [pathname]);
+  }
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -126,6 +128,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
                   className="px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   {link.label}

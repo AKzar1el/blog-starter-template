@@ -9,6 +9,15 @@ export interface MediaEmbedProps {
   caption?: string;
 }
 
+function MediaContainer({ children, className = '', caption }: { children: React.ReactNode; className?: string; caption?: string }) {
+  return (
+    <div className={className}>
+      {children}
+      {caption && <p className="mt-2 text-sm text-gray-600 italic text-center">{caption}</p>}
+    </div>
+  );
+}
+
 /**
  * MediaEmbed Component
  *
@@ -75,24 +84,12 @@ export default function MediaEmbed({ url, type, position = 'inline', caption }: 
     }
   };
 
-  // Container with caption
-  const MediaContainer = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-    <div className={className}>
-      {children}
-      {caption && (
-        <p className="mt-2 text-sm text-gray-600 italic text-center">
-          {caption}
-        </p>
-      )}
-    </div>
-  );
-
   // Position-specific layouts
   switch (position) {
     case 'right':
       // Video on right, content on left (desktop), stack on mobile
       return (
-        <MediaContainer className="float-none lg:float-right lg:w-1/2 lg:ml-6 mb-6 clear-right">
+        <MediaContainer caption={caption} className="float-none lg:float-right lg:w-1/2 lg:ml-6 mb-6 clear-right">
           {renderMedia()}
         </MediaContainer>
       );
@@ -100,7 +97,7 @@ export default function MediaEmbed({ url, type, position = 'inline', caption }: 
     case 'left':
       // Video on left, content on right (desktop), stack on mobile
       return (
-        <MediaContainer className="float-none lg:float-left lg:w-1/2 lg:mr-6 mb-6 clear-left">
+        <MediaContainer caption={caption} className="float-none lg:float-left lg:w-1/2 lg:mr-6 mb-6 clear-left">
           {renderMedia()}
         </MediaContainer>
       );
@@ -108,7 +105,7 @@ export default function MediaEmbed({ url, type, position = 'inline', caption }: 
     case 'full-width':
       // Full width
       return (
-        <MediaContainer className="w-full my-8">
+        <MediaContainer caption={caption} className="w-full my-8">
           {renderMedia()}
         </MediaContainer>
       );
@@ -117,7 +114,7 @@ export default function MediaEmbed({ url, type, position = 'inline', caption }: 
     default:
       // Inline centered (responsive)
       return (
-        <MediaContainer className="max-w-3xl mx-auto my-8">
+        <MediaContainer caption={caption} className="max-w-3xl mx-auto my-8">
           {renderMedia()}
         </MediaContainer>
       );

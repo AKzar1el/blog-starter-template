@@ -12,11 +12,12 @@ export const metadata: Metadata = {
 };
 
 interface SearchPageProps {
-  searchParams: { q?: string };
+  searchParams: Promise<{ q?: string | string[] }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q || '';
+  const { q } = await searchParams;
+  const query = typeof q === 'string' ? q : '';
   const posts = query.trim() ? await searchPosts(query) : [];
 
   const postsWithParsedTags = posts.map(post => ({
